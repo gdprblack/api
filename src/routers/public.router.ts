@@ -19,6 +19,9 @@ export class PublicRouter {
 
   private addRoutes() {
     this.router.route("/data")
-        .post(Data.controller.createDataEntry);
+      .post(Data.controller.createDataEntry);
+
+    this.router.route("/data/:id")
+      .get(Data.controller.getDataEntry);
   }
 }
