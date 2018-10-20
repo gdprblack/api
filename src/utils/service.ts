@@ -1,10 +1,9 @@
 import { ExpressServer, IExpressServerOptions } from "./express";
 import { MongooseService, IMongooseServiceOptions } from "./mongoose";
 
-
 interface IServiceSettings {
-    express: IExpressServerOptions,
-    mongoose: IMongooseServiceOptions,
+    express: IExpressServerOptions;
+    mongoose: IMongooseServiceOptions;
 }
 
 class Service {
@@ -19,7 +18,6 @@ class Service {
         this.express = new ExpressServer(this.settings.express);
         this.mongoose = new MongooseService(this.settings.mongoose);
     }
-
 
     public async start() {
         try {
@@ -45,4 +43,4 @@ export {
     Service,
     ExpressServer,
     MongooseService,
-}
+};

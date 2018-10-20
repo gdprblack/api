@@ -12,8 +12,8 @@ const settings: IServiceSettings = {
     port: parseInt(process.env.PORT || defaultPort, undefined),
   },
   mongoose: {
-    uri: ""
-  }
+    uri: "mongodb://localhost:32768/test",
+  },
 };
 
 export { settings };

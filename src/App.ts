@@ -1,5 +1,6 @@
 import { Service } from "./utils/service";
 import { settings } from "./settings";
+import { PublicRouter } from "./routers/public.router";
 
 declare const global: {
   app: Service;
@@ -7,7 +8,7 @@ declare const global: {
 
 global.app = new Service(settings);
 
-// global.app.express!.addRouter("/public", new PublicRouter().getRouter());
+global.app.express.addRouter("/public", new PublicRouter().getRouter());
 
 const app = global.app;
 

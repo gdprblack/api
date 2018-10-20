@@ -15,7 +15,7 @@ class MongooseService {
 
   public async connect(): Promise<void> {
     try {
-      await mongoose.connect(this.options.uri);
+      await mongoose.connect(this.options.uri, { useNewUrlParser: true });
       this.client = mongoose;
     } catch (err) {
       throw err;
@@ -31,7 +31,11 @@ class MongooseService {
   }
 }
 
+const Schema = mongoose.Schema;
+
 export {
   IMongooseServiceOptions,
   MongooseService,
+  mongoose,
+  Schema,
 };
