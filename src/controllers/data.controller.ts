@@ -1,19 +1,12 @@
 import DataModel from "../models/data.model";
 import { Request, Response } from "express";
 import { encryptData, decryptKeys, decryptData, decryptKeyBoard, decryptSecrets } from "@gdprblack/secrets";
-import blockchainEvents from "@gdprblack/blockchain";
 import Entity from "../controllers/entity.controller";
 import User from "../controllers/user.controller";
 import { UserRoles } from "../constants";
+import * as request from "request";
 
 class DataController {
-
-    private blockchainEvents;
-
-    constructor() {
-        this.blockchainEvents = blockchainEvents;
-        console.log(blockchainEvents);
-    }
 
     public async createDataEntry(req: Request, res: Response) {
         const entity: any = await Entity.controller.getEntityUsers(req.body.entity);
@@ -31,27 +24,22 @@ class DataController {
             res.status(201).json(data);
         });
     }
-
-    public newDataObject = (req: Request, res: Response) => {
-        const result = this.blockchainEvents.deployNewContract(req.body.mongoid);
-        Promise.all([result]).then((values) => {
-            res.status(201).json(values);
-        });
+    
+    public newDataObject(address) {
+        const result = request.post("http://localhost:8080/blockchain/addEvent", {body: {address}, json: true})
+        return result.json();
     }
 
-    public addEvent(req: Request, res: Response) {
-        const result = this.blockchainEvents.addEvent(req.body.address, req.body.timestamp, req.body.user, req.body.type, req.body.metadata);
-        Promise.all([result]).then((values) => {
-            res.status(201).json(values);
-        });
+    public addEvent(address, timestamp, user, type, metadata) {
+        const result = request.post("http://localhost:8080/blockchain/addEvent", {body: {address, timestamp, user, type, metadata}, json: true})
+        return result.json();
     }
 
-    public getLogList(req: Request, res: Response) {
-        const result = this.blockchainEvents.getLogList(req.body.address);
-        Promise.all([result]).then((values) => {
-            res.status(201).json(values);
-        });
+    public getLogList(address) {
+        const result = request.post("http://localhost:8080/blockchain/getLogList", {body: {address}, json: true})
+        return result.json();
     }
+
 
     public getPublicDataEntry(req: Request, res: Response) {
         Data.model.findById(req.params.id, "dbId decrypted", (err, data) => {
