@@ -5,16 +5,14 @@ import blockchainEvents from "@gdprblack/blockchain";
 import Entity from "../controllers/entity.controller";
 import User from "../controllers/user.controller";
 import { UserRoles } from "../constants";
-import * as Web3 from "web3";
 
 class DataController {
 
     private blockchainEvents;
 
     constructor() {
-        this.blockchainEvents = blockchainEvents.default;
+        this.blockchainEvents = blockchainEvents;
         console.log(blockchainEvents);
-        this.blockchainEvents.init(new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545")));
     }
 
     public async createDataEntry(req: Request, res: Response) {
@@ -65,13 +63,18 @@ class DataController {
     }
 
     public async getDataEntry(req: Request, res: Response) {
-        const data: any = await Data.model.findById(req.params.id, "entityId dbId decrypted signatures keys");
+        const data: any = await Data.model.findById(req.params.id, "entityId dbId decrypted signatures keys encryptedData");
+        let decryptedData = null;
         if (data.decrypted) {
-            const secret = decryptSecrets(data.keys.dpoKey, data.keys.boardKeys);
-            const decryptedData = decryptData(data.encryptedData, secret);
-            data.decryptedData = decryptedData;
+            console.log("DPO", data.keys.dpoKey);
+            console.log("BOARD", Array.from(data.keys.boardKeys.values()).map((x: string) => new Buffer(x)));
+            const secret = decryptSecrets(data.keys.dpoKey, Array.from(data.keys.boardKeys.values()).map((x: string) => new Buffer(x)));
+            console.log(secret);
+            console.log(data.encryptedData);
+            decryptedData = decryptData(data.encryptedData, secret);
+            console.log(decryptedData);
         }
-        res.send(data);
+        res.send({data, decryptedData});
     }
 
     public async signRequest(req: Request, res: Response) {
