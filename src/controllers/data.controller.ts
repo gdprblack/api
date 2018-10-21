@@ -1,16 +1,22 @@
 import DataModel from "../models/data.model";
 import { Request, Response } from "express";
-<<<<<<< HEAD
-import { encryptData, decryptKey, decryptData } from "@gdprblack/secrets";
-import { addEvent, deployNewContract, getLogList, getLogData } from "@gdprblack/blockchain";
-=======
 import { encryptData, decryptKeys, decryptData, decryptKeyBoard } from "@gdprblack/secrets";
->>>>>>> 7b53388e63b4b278839a8099a0d051adff9b5d7f
+import blockchainEvents from "@gdprblack/blockchain";
 import Entity from "../controllers/entity.controller";
 import User from "../controllers/user.controller";
 import { UserRoles } from "../constants";
+import * as Web3 from "web3";
 
 class DataController {
+
+    private blockchainEvents;
+
+    constructor() {
+        this.blockchainEvents = blockchainEvents.default;
+        console.log(blockchainEvents);
+        this.blockchainEvents.init(new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545")));
+    }
+
     public async createDataEntry(req: Request, res: Response) {
         const entity: any = await Entity.controller.getEntityUsers(req.body.entity);
         console.log(entity);
@@ -28,22 +34,22 @@ class DataController {
         });
     }
 
-    public newDataObject(req: Request, res: Response) {
-        const result = deployNewContract(req.body.mongoid);
+    public newDataObject = (req: Request, res: Response) => {
+        const result = this.blockchainEvents.deployNewContract(req.body.mongoid);
         Promise.all([result]).then((values) => {
             res.status(201).json(values);
         });
     }
 
     public addEvent(req: Request, res: Response) {
-        const result = addEvent(req.body.address, req.body.timestamp, req.body.user, req.body.type, req.body.metadata);
+        const result = this.blockchainEvents.addEvent(req.body.address, req.body.timestamp, req.body.user, req.body.type, req.body.metadata);
         Promise.all([result]).then((values) => {
             res.status(201).json(values);
         });
     }
 
     public getLogList(req: Request, res: Response) {
-        const result = getLogList(req.body.address);
+        const result = this.blockchainEvents.getLogList(req.body.address);
         Promise.all([result]).then((values) => {
             res.status(201).json(values);
         });
