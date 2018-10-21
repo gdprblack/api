@@ -50,6 +50,11 @@ class DataController {
         });
     }
 
+    public async getDataList(req: Request, res: Response) {
+        const data: any = await Data.model.find({}, "entityId dbId decrypted signatures keys encryptedData");
+        res.send(data);
+    }
+
     public async getDataEntry(req: Request, res: Response) {
         const data: any = await Data.model.findById(req.params.id, "entityId dbId decrypted signatures keys encryptedData");
         let decryptedData = null;
