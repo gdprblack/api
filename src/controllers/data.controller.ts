@@ -56,9 +56,9 @@ class DataController {
     }
 
     public async getDataEntry(req: Request, res: Response) {
-        const data: any = await Data.model.findById(req.params.id, "entityId dbId decrypted signatures keys encryptedData");
+        const data: any = await Data.model.findById(req.params.id, "entityId dbId decrypted signatures keys encryptedData encryptedKeys");
         let decryptedData = null;
-        var eventType;
+        let eventType;
         if (data.decrypted) {
             const secret = decryptSecrets(data.keys.dpoKey, Array.from(data.keys.boardKeys.values()).map((x: string) => new Buffer(x)));
             decryptedData = decryptData(data.encryptedData, secret);
