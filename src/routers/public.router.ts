@@ -23,14 +23,5 @@ export class PublicRouter {
 
     this.router.route("/data/:id")
       .get(Data.controller.getPublicDataEntry);
-
-    this.router.route("/data/newDataObject")
-      .post(Data.controller.newDataObject);
-
-    this.router.route("/data/addEvent")
-      .post(Data.controller.addEvent);
-
-    this.router.route("/data/getDataList")
-      .get(Data.controller.getLogList);
   }
 }

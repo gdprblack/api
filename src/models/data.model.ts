@@ -9,6 +9,10 @@ const DataSchema = new Schema({
         type: String,
         required: true,
     },
+    address: {
+        type: String,
+        required: true,
+    },
     encryptedData: {
         type: String,
         required: true,

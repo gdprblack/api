@@ -4,42 +4,42 @@ import { encryptData, decryptKeys, decryptData, decryptKeyBoard, decryptSecrets 
 import Entity from "../controllers/entity.controller";
 import User from "../controllers/user.controller";
 import { UserRoles } from "../constants";
-import * as request from "request";
+import axios from "axios";
 
 class DataController {
 
-    public async createDataEntry(req: Request, res: Response) {
+    public createDataEntry = async (req: Request, res: Response) => {
         const entity: any = await Entity.controller.getEntityUsers(req.body.entity);
-        console.log(entity);
         const result = encryptData(req.body.data, entity.cpo, entity.boardMembers);
         result.entityId = req.body.entity;
         result.dbId = req.body.id;
 
+        result.address = await this.newDataObject(req.body.id);
+
         const newData = new Data.model(result);
 
-        newData.save((err, data) => {
+        newData.save(async (err, data) => {
             if (err) {
                 return res.status(500).send(err);
             }
             res.status(201).json(data);
         });
     }
-    
-    public newDataObject(address) {
-        const result = request.post("http://localhost:8080/blockchain/addEvent", {body: {address}, json: true})
-        return result.json();
+
+    public async newDataObject(mongoID) {
+        const result = await axios.post("http://localhost:8080/blockchain/deployNewContract", {mongoID});
+        return result.data;
     }
 
-    public addEvent(address, timestamp, user, type, metadata) {
-        const result = request.post("http://localhost:8080/blockchain/addEvent", {body: {address, timestamp, user, type, metadata}, json: true})
-        return result.json();
+    public async addEvent(address, timestamp, user, type, metadata) {
+        const result = await axios.post("http://localhost:8080/blockchain/addEvent", {address, timestamp, user, type, metadata});
+        return result.data;
     }
 
-    public getLogList(address) {
-        const result = request.post("http://localhost:8080/blockchain/getLogList", {body: {address}, json: true})
-        return result.json();
+    public async getLogList(address) {
+        const result = await axios.post("http://localhost:8080/blockchain/getLogList", {address});
+        return result.data;
     }
-
 
     public getPublicDataEntry(req: Request, res: Response) {
         Data.model.findById(req.params.id, "dbId decrypted", (err, data) => {
