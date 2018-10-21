@@ -1,7 +1,7 @@
 import DataModel from "../models/data.model";
 import { Request, Response } from "express";
-import { addEvent, deployNewContract, getLogList, getLogData } from "@gdprblack/blockchain";
-import { encryptData, decryptKeys, decryptData, decryptKeyBoard } from "@gdprblack/secrets";
+import { addEvent, deployNewContract, getLogList } from "@gdprblack/blockchain";
+import { encryptData, decryptKeys, decryptData, decryptKeyBoard, decryptSecrets } from "@gdprblack/secrets";
 import Entity from "../controllers/entity.controller";
 import User from "../controllers/user.controller";
 import { UserRoles } from "../constants";
@@ -55,30 +55,27 @@ class DataController {
     }
 
     public async getDataEntry(req: Request, res: Response) {
-        const data: any = await Data.model.findById(req.params.id, "entityId dbId decrypted signatures");
+        const data: any = await Data.model.findById(req.params.id, "entityId dbId decrypted signatures keys");
         if (data.decrypted) {
-            const secret = decryptKeys("a", "TODO");
-            decryptData(data.encryptedData, secret);
+            const secret = decryptSecrets(data.keys.dpoKey, data.keys.boardKeys);
+            const decryptedData = decryptData(data.encryptedData, secret);
+            data.decryptedData = decryptedData;
         }
-        res.status(201).json(data);
+        res.send(data);
     }
 
     public async signRequest(req: Request, res: Response) {
         const data: any = await Data.model.findById(req.params.id);
         const user: any = await User.model.findOne({ publicKey: req.body.publicKey });
         const members = await Entity.controller.getEntityUsers(data!.entityId);
-        console.log(user.role, UserRoles.BoardMember, user.role === UserRoles.BoardMember);
         if (user.role === UserRoles.BoardMember) {
             const result = decryptKeyBoard(data.encryptedKeys.boardKeys.get(user.publicKey), req.body.privateKey);
-            console.log(result);
-            console.log(data.keys);
             if (!data.keys.boardKeys) {
                 data.keys.boardKeys = {};
             }
             data.keys.boardKeys.set(user.publicKey, result);
             data.signatures.board.push(user.publicKey);
         } else {
-            console.log("DPO");
             const result = decryptKeys(data.encryptedKeys.dpoKey, req.body.privateKey);
             data.keys.dpoKey = result;
             data.signatures.dpo = true;
