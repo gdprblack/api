@@ -97,6 +97,7 @@ class DataController {
             data.decrypted = true;
         }
         data.save();
+        res.send(data);
     }
 }
 
