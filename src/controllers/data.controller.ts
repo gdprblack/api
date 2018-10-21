@@ -53,13 +53,15 @@ class DataController {
     public async getDataEntry(req: Request, res: Response) {
         const data: any = await Data.model.findById(req.params.id, "entityId dbId decrypted signatures keys encryptedData");
         let decryptedData = null;
+        var eventType;
         if (data.decrypted) {
             const secret = decryptSecrets(data.keys.dpoKey, Array.from(data.keys.boardKeys.values()).map((x: string) => new Buffer(x)));
             decryptedData = decryptData(data.encryptedData, secret);
-            // TODO: addEvent
+            eventType = 3;
         } else {
-            // TODO: addEvent
+            eventType = 4;
         }
+        const logAddress = await this.addEvent(data.address, Date.now(), null, eventType, null);
         res.send({data, decryptedData});
     }
 
@@ -67,7 +69,8 @@ class DataController {
         const data: any = await Data.model.findById(req.params.id);
         const user: any = await User.model.findOne({ publicKey: req.body.publicKey });
         const members = await Entity.controller.getEntityUsers(data!.entityId);
-        // TODO: addEvent
+        const logAddress = await this.addEvent(data.address, Date.now(), user._id, 2, null);
+
         if (user.role === UserRoles.BoardMember) {
             const result = decryptKeyBoard(data.encryptedKeys.boardKeys.get(user.publicKey), req.body.privateKey);
             if (!data.keys.boardKeys) {
