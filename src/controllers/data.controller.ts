@@ -1,6 +1,6 @@
 import DataModel from "../models/data.model";
 import { Request, Response } from "express";
-import { encryptData, decryptKey, decryptData } from "@gdprblack/secrets";
+import { encryptData, decryptKeys, decryptData, decryptKeyBoard } from "@gdprblack/secrets";
 import Entity from "../controllers/entity.controller";
 import User from "../controllers/user.controller";
 import { UserRoles } from "../constants";
@@ -35,7 +35,8 @@ class DataController {
     public async getDataEntry(req: Request, res: Response) {
         const data: any = await Data.model.findById(req.params.id, "entityId dbId decrypted signatures");
         if (data.decrypted) {
-            decryptData(data.encryptedData, data.keys);
+            const secret = decryptKeys("a", "TODO");
+            decryptData(data.encryptedData, secret);
         }
         res.status(201).json(data);
     }
@@ -44,16 +45,23 @@ class DataController {
         const data: any = await Data.model.findById(req.params.id);
         const user: any = await User.model.findOne({publicKey: req.body.publicKey});
         const members = await Entity.controller.getEntityUsers(data!.entityId);
+        console.log(user.role, UserRoles.BoardMember, user.role === UserRoles.BoardMember);
         if (user.role === UserRoles.BoardMember) {
-            const result = decryptKey(data.encryptedKeys.boardMembers[user.publicKey], req.body.privateKey);
-            data.keys.boardMembers[user.publicKey] = result;
-            data.signatures.boardMembers.push(user.publicKey);
+            const result = decryptKeyBoard(data.encryptedKeys.boardKeys.get(user.publicKey), req.body.privateKey);
+            console.log(result);
+            console.log(data.keys);
+            if (!data.keys.boardKeys) {
+                data.keys.boardKeys = {};
+            }
+            data.keys.boardKeys.set(user.publicKey, result);
+            data.signatures.board.push(user.publicKey);
         } else {
-            const result = decryptKey(data.encryptedKeys.cpo, req.body.privateKey);
-            data.keys.cpo = result.key;
-            data.signatures.cpo = true;
+            console.log("DPO");
+            const result = decryptKeys(data.encryptedKeys.dpoKey, req.body.privateKey);
+            data.keys.dpoKey = result;
+            data.signatures.dpo = true;
         }
-        if (data.signatures.cpo && data.signatures.boardMembers.length > members.boardMembers.length / 2) {
+        if (data.signatures.dpo && data.signatures.board.length > members.boardMembers.length / 2) {
             data.decrypted = true;
         }
         data.save();

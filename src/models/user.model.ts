@@ -27,7 +27,7 @@ const UserSchema = new Schema({
         select: false,
     },
     role: {
-        type: String,
+        type: Number,
         required: true,
     },
     __v: {
