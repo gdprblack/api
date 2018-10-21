@@ -20,5 +20,8 @@ export class DataRouter {
   private addRoutes() {
     this.router.route("/:id/sign")
       .post(Data.controller.signRequest);
+
+    this.router.route("/:id")
+      .get(Data.controller.getDataEntry);
   }
 }
