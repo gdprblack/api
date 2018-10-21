@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
-import Data from "../controllers/data.controller";
+import Entity from "../controllers/entity.controller";
 
-export class PublicRouter {
+export class EntityRouter {
   private router: Router;
 
   constructor() {
@@ -18,10 +18,10 @@ export class PublicRouter {
   }
 
   private addRoutes() {
-    this.router.route("/data")
-      .post(Data.controller.createDataEntry);
+    this.router.route("/")
+      .post(Entity.controller.createEntity);
 
-    this.router.route("/data/:id")
-      .get(Data.controller.getPublicDataEntry);
+    this.router.route("/:id")
+      .get(async (req, res) => { res.send(await Entity.controller.getEntityUsers(req.params.id));  });
   }
 }

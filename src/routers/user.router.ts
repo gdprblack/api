@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
-import Data from "../controllers/data.controller";
+import User from "../controllers/user.controller";
 
-export class PublicRouter {
+export class UserRouter {
   private router: Router;
 
   constructor() {
@@ -18,10 +18,7 @@ export class PublicRouter {
   }
 
   private addRoutes() {
-    this.router.route("/data")
-      .post(Data.controller.createDataEntry);
-
-    this.router.route("/data/:id")
-      .get(Data.controller.getPublicDataEntry);
+    this.router.route("/")
+      .post(User.controller.createUser);
   }
 }
