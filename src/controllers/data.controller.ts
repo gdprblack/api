@@ -1,11 +1,7 @@
 import DataModel from "../models/data.model";
 import { Request, Response } from "express";
-<<<<<<< HEAD
-import { encryptData, decryptKey, decryptData } from "@gdprblack/secrets";
 import { addEvent, deployNewContract, getLogList, getLogData } from "@gdprblack/blockchain";
-=======
 import { encryptData, decryptKeys, decryptData, decryptKeyBoard } from "@gdprblack/secrets";
->>>>>>> 7b53388e63b4b278839a8099a0d051adff9b5d7f
 import Entity from "../controllers/entity.controller";
 import User from "../controllers/user.controller";
 import { UserRoles } from "../constants";
